@@ -1,0 +1,201 @@
+<!doctype html>
+<html>
+<head lang="en">
+    <meta charset="utf-8">
+    <title>Ottemo Composer UI</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script>
+
+    <script type="text/javascript">
+
+        getItem = function(subject, path, miss, delim) {
+            if (typeof miss == 'undefined') {
+                miss = null;
+            }
+
+            if (typeof subject == 'undefined') {
+                return miss;
+            }
+
+            if (typeof delim != 'string') {
+                delim = ".";
+            }
+
+            if (typeof path != 'string' || path == '') {
+                return subject;
+            }
+
+            path = path.split(delim);
+            for (var item in path) {
+                item = path[item];
+                if (typeof subject[item] == 'undefined') {
+                    return miss;
+                } else {
+                    subject = subject[item];
+                }
+            }
+
+            return subject;
+        };
+
+        angular.module('ComposerEditor', [])
+
+                .controller('ComposerEditor', ['$scope',
+                    function ($scope) {
+                        $scope.json = {"a": 1, "b": {"c": {"d": {'e': 2, "f": 3}}}, "g": 4};
+
+                        $scope.jsonItem = function(path, miss, delim) {
+                            return getItem($scope.json, path, miss, delim);
+                        }
+
+                        $scope.addItem = function(path, value) {
+
+                        };
+
+                        $scope.removeItem = function(path) {
+
+                        };
+
+                        $scope.reset = function(contact) {
+                            $scope.json = {};
+                        };
+                    }])
+
+                .directive('ngTree', ["$compile", function($compile) {
+
+                    // ref to https://docs.angularjs.org/guide/directive (Normalization)
+                    // 1. Strip "x-" and "data-" from the front of the element/attributes.
+                    // 2. Convert the ":", "-", or "_" - delimited name to camelCase.
+                    var namingOptions = function(name) {
+                        var result = []
+                        if (typeof name == 'string') {
+                            // front order conversion
+                            name = name.replace(/^(x-|data-)/, "").replace(/[-:_]([a-z])/g, function(m, g){ return g.toUpperCase(); })
+
+                            // back order convarsion
+                            result.push(name);
+                            name = name.replace(/([A-Z])/g, function(m, l) { return "-" + l.toLowerCase(); })
+                            result.push(name);
+                            result.push(name.replace("-", ":"));
+                            result.push(name.replace("-", "_"));
+                            result.push("data-" + name);
+                            result.push("x-" + name);
+                        }
+                        return result;
+                    }
+
+                    return {
+                        restrict: 'A',
+                        compile: function(element, attributes) {
+
+                            // preparing template elements
+                            var template = element;
+                            angular.forEach(namingOptions(this.name), function(nameOption) { template.removeAttr(nameOption); });
+
+                            var templateChildWrapper = angular.element();
+                            angular.forEach(namingOptions(this.name + "Child"), function(nameOption) {
+                                try {
+                                    templateChildWrapper = angular.element( element[0].querySelector('.' + nameOption) );
+                                    if (templateChildWrapper.length != 0) {
+                                        templateChildWrapper.removeClass(nameOption);
+                                    }
+                                } catch(e) { }
+                            });
+
+                            var childContainerClass = "";
+                            angular.forEach(namingOptions(this.name + "Children"), function(nameOption) {
+                                try {
+                                    var containerElement = angular.element( element[0].querySelector('.' + nameOption) );
+                                    if (containerElement.length != 0) {
+                                        childContainerClass = nameOption;
+                                    }
+                                } catch(e) { }
+                            });
+
+
+                            // converting templates to the text
+                            template = template[0].outerHTML;
+
+                            if (templateChildWrapper.length != 0) {
+                                templateChildWrapper = templateChildWrapper[0].outerHTML;
+                            } else {
+                                templateChildWrapper = ""
+                            }
+
+                            // returning directive link function
+                            return function(scope, element, attributes) {
+                                // getting value we are going to render
+                                var subject = null;
+                                if (typeof attributes.ngTree != 'undefined') {
+                                    if (typeof scope[attributes.ngTree] != 'undefined') {
+                                        subject = scope[attributes.ngTree];
+                                    }
+                                }
+
+                                // recursive function a the tree generation
+                                var treeMaker = function(value, path) {
+                                    var result = "";
+                                    var valueType = typeof value;
+
+                                    // checking input
+                                    if (valueType == 'undefined' || value == null) {
+                                        return result;
+                                    }
+
+                                    if (typeof path != 'string') {
+                                        path = "";
+                                    }
+
+                                    // preparing scope for tree item
+                                    var itemScope = scope.$new(false);
+                                    itemScope['path']  = path;
+                                    itemScope['key']   = path.split("/").pop();
+                                    itemScope['value'] = value;
+                                    itemScope['type']  = typeof value;
+
+                                    var children = [];
+                                    itemScope['children'] = children;
+
+                                    // making tree item
+                                    result = $compile(template)(itemScope);
+
+                                    var childContainer = result;
+                                    if (childContainerClass != "") {
+                                        childContainer = angular.element( result[0].querySelector("." + childContainerClass) );
+                                        childContainer.removeClass(childContainerClass);
+                                    }
+
+                                    if (valueType == 'object' || valueType == 'array') {
+                                        delete itemScope['value'];
+
+                                        for (var key in value) {
+                                            child = treeMaker(value[key], path+"/"+key)
+                                            children.push(child[0]);
+
+                                            if (templateChildWrapper != "") {
+                                                child = $compile(templateChildWrapper)(itemScope).append(child);
+                                            }
+                                            childContainer.append(child);
+                                        }
+                                    }
+
+                                    return result;
+                                }
+
+                                // directive replacement
+                                element.replaceWith( treeMaker(subject) );
+                            }
+                        }
+                    }}]);
+    </script>
+</head>
+<body ng-app="ComposerEditor" ng-controller="ComposerEditor">
+<ul ng-tree="json">
+    {{key}}:<li class="ng-tree-child in ng-tree-children">{{value}}</li>
+</ul>
+
+<div style='margin-left: 10px;' ng-tree="json">
+    <span ng-if="key">{{key}}: {{value}}</span>
+</div>
+</body>
+</html>
