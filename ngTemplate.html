@@ -54,16 +54,19 @@
                                     var attr = attribute.replace(/^(data-|x-)/, "").toLowerCase();
                                     templateAttributes[attr] = attributes[attribute];
                                 }
+                                console.log(templateAttributes);
                             } else {
                                 /* case 2: directive usage as an attribute - attribute prefix filtering*/
-                                var templatePrefix = "t-";
+                                var templatePrefix = "t";
                                 for (var loop=true; loop; loop=!loop) {
                                     for(attribute in  attributes.$attr) {
                                         var attr = attribute.replace(/^(data-|x-)/, "").toLowerCase();
 
                                         /* non default prefix specified, we should repeat scan for that case (as attributes order is not strict) */
-                                        if (attr == "template" && attributes[attribute] != "") {
-                                            templatePrefix = attributes[attribute];
+                                        if (attr == "template") {
+                                            if (attributes[attribute] != "") {
+                                                templatePrefix = attributes[attribute];
+                                            }
 
                                             delete attributes.$attr[attribute];
                                             element.removeAttr(attribute);
@@ -134,7 +137,7 @@
                                     /* making new scope */
                                     var templateScope = scope.$new(false);
                                     for (var attr in templateAttributes) {
-                                        templateScope[attr] = templateScope.$eval(templateAttributes[attr]);
+                                        templateScope[attr] = scope.$eval(templateAttributes[attr]);
                                     }
 
                                     /* applying new scope to the subject */
@@ -186,5 +189,16 @@
 <template get="tree-item" key="" item="json"></template>
 
 
+<!--<template set="aaa">-->
+    <!--AAA {{a}}-->
+    <!--<ul >-->
+        <!--&lt;!&ndash;<li><span ng-if="a < 5" template="tr" tr-get="aaa" tr-a="a+1"/></li>&ndash;&gt;-->
+        <!--<li><template ng-if="a<5" get="aaa" a="a+1"></template></li>-->
+    <!--</ul>-->
+<!--</template>-->
+
+<!--<span template="t" t-get="aaa" t-a="0"></span>-->
+<!--<template get="aaa" a="0"></template>-->
 </body>
+
 </html>

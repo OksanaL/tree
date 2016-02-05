@@ -5,37 +5,35 @@
 var treeControllers = angular.module('treeControllers', []);
 
 treeControllers.controller('ComposerEditor', ['$scope', function ($scope) {
+    //$scope.json = {"a": 10, "b":  {"a": {"s": 22}, "d": 33}};
 
     $scope.json = {
-        "Name": "Joe",
-        "Last Name": "Miller",
-        "Address": {
-            "Street": {
-                "Street name": "Neverland",
-                "Number": "42"
-            }
-        },
-        "Hobbies": [
-            {
-                'favorite' : [
-                    "play footbal"
-                ],
-                'not favorite' :  [
-                    "bascetball",
-                    "cimchi"
-                ]
-            },
-            {
-                'favorite' : [
-                    "play footbal"
-                ],
-                'not favorite': [
-                    "bascetball"
-                ]
-            },
-            "dreaming",
-            "listening"
-        ],
+        value: "Joe",
+        id: 0,
+        path: '',
+        nodes: [
+            //{
+            //    value: "Mike",
+            //    id: '11',
+            //    nodes: []
+            //},
+            //{
+            //    value: "Leo",
+            //    id: '12',
+            //    nodes: [
+            //        {
+            //            value: "John",
+            //            id: '121',
+            //            nodes: []
+            //        }
+            //    ]
+            //},
+            //{
+            //    value: "Shon",
+            //    id: '13',
+            //    nodes: []
+            //}
+        ]
     }
 
     $scope.getTypeOf = function(value) {
@@ -47,18 +45,28 @@ treeControllers.controller('ComposerEditor', ['$scope', function ($scope) {
         }
         return typeof value;
     };
+
     /*$scope.jsonItem = function(path, miss, delim) {
         return getItem($scope.json, path, miss, delim);
     };
-
-    $scope.addItem = function(path, value) {
-
+*/
+    $scope.addItem = function(item) {
+        //var length = item.nodes.length
+        var nextNodeId = item.nodes.length;
+        item.nodes.push({
+            value: "123",
+            id: nextNodeId,
+            path: item.path + (item.path != '' ? '['+item.id+'].nodes' : 'nodes'),
+            nodes: []
+        });
     };
 
-    $scope.removeItem = function(path) {
-
+    $scope.removeItem = function(item) {
+        var path = item.path;
+        console.log("$scope.json." + path + ".splice("+item.id+", 1)");
+        eval("$scope.json." + path + ".splice("+item.id+", 1)");
     };
-
+/*
     $scope.reset = function(contact) {
         $scope.json = {};
     };*/

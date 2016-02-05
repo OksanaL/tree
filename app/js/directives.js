@@ -25,7 +25,7 @@ treeDirectives.directive('template', ["$compile", function($compile) {
                     var attr = attribute.replace(/^(data-|x-)/, "").toLowerCase();
                     templateAttributes[attr] = attributes[attribute];
                 }
-                console.log(templateAttributes);
+
             } else {
                 /* case 2: directive usage as an attribute - attribute prefix filtering*/
                 var templatePrefix = "t-";

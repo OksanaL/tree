@@ -1,0 +1,19 @@
+<html ng-app="app">
+  <head>
+    <style>
+        .other{
+          margin-left:30px;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script src="sc.js"></script>
+  </head>
+  <body ng-controller="appCtrl">
+        <div class="father">
+        <input class="name" type="text" ng-model="obj.name">
+        <input class="value" type="text" ng-model="obj.val">
+        <button append-node="0" ng-m="obj.src">Add button</button>
+    </div>
+     <pre>{{obj | json}}</pre>
+  </body>
+</html>

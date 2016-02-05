@@ -1,47 +1,57 @@
-<template set="tpl1">
-    Value: <span>{{value}}</span><br/>
-</template>
+<!--<template set="tpl1">-->
+    <!--Value: <span>{{value}}</span><br/>-->
+<!--</template>-->
 
-<div template t-set="tpl2" class="class" style="color:yellow">
-    Value: <span>{{value}}</span><br/>
-</div>
+<!--<div template tpl-set="tpl2" class="class" style="color:yellow">-->
+    <!--Value: <span>{{value}}</span><br/>-->
+<!--</div>-->
 
-<span class="span1" style="text-decoration: underline" template="t" t-get="tpl1" t-value="2"></span>
-	<span template="tpl" class="span2" style="text-decoration: underline" tpl-get="tpl1" tpl-value="3">
-		<b>span 2 there</b>
-	</span>
-
-<hr/>
+<!--<span class="span1" style="text-decoration: underline" template="t2" t2-get="tpl1" t2-value="2"></span>-->
+	<!--<span template="tplt" class="span2" style="text-decoration: underline" tplt-get="tpl1" tplt-value="3">-->
+		<!--<b>span 2 there</b>-->
+	<!--</span>-->
+<!--<hr/>-->
 
 <template set="tree-item">
     <div>
         <ng-switch on="getTypeOf(item)">
 
-            <div ng-switch-when="string">
-                {{key}}: {{item}}
-            </div>
+            <!--<div ng-switch-when="string">-->
+                <!--<input type="text"  ng-model="key"/>-->
+                <!--<input type="text"  ng-model="item"/>-->
+                <!--< add-node="">Add node</button>-->
+            <!--</div>-->
+
+            <!--<div ng-switch-when="number">-->
+                <!--<input type="text"  ng-model="key"/>-->
+                <!--<input type="text"  ng-model="item"/>-->
+                <!--<button ng-click="addItem()">Add node</button>-->
+            <!--</div>-->
 
             <div ng-switch-when="object">
-                {{key}}
-                <ul ng-repeat="(key, value) in item">
-                    <li>
-                        <template get="tree-item" item="value" key="key"></template>
-                    </li>
-                </ul>
+                <input type="text"  ng-model="item.id"/>
+                <input type="text"  ng-model="item.value"/>
+                <button ng-click="addItem(item)">Add node</button>
+                <button ng-click="removeItem(item)">remove</button>
+                <template get="tree-item" item="item.nodes" key=""></template>
+                <!--<ul ng-repeat="node in item.nodes">-->
+                    <!--<li>-->
+                        <!--<template get="tree-item" item="node" key=""></template>-->
+                    <!--</li>-->
+                <!--</ul>-->
             </div>
 
             <div ng-switch-when="array">
-                {{key}}
-                <div ng-repeat="(key, value) in item">
-                    <template get="tree-item" item="value" key="key"></template>
-                </div>
+                <ol>
+                    <li ng-repeat="(key, value) in item">
+                        <template get="tree-item" item="value" ></template>
+                    </li>
+                </ol>
             </div>
 
-            <div ng-switch-default>
-               {{item}}
-            </div>
         </ng-switch>
     </div>
 </template>
-
-<template get="tree-item" key="" item="json"></template>
+<pre>{{json |json}}</pre>
+<template get="tree-item" item="json" key=""></template>
+<!--<template get="tree-item2"></template>-->
